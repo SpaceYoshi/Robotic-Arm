@@ -1,2 +1,2 @@
 # Robotic-Arm
-Assignment for my university course 2D Computer Graphics, created using the Java2D and dyn4j libraries.
+Assignment for my university course 2D Computer Graphics, created using JavaFX, Java2D and the dyn4j library.
