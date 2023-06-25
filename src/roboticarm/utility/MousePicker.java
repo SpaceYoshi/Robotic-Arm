@@ -1,4 +1,4 @@
-package utility;
+package roboticarm.utility;
 
 import javafx.event.EventHandler;
 import javafx.scene.Node;

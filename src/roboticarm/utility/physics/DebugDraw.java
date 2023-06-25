@@ -1,4 +1,4 @@
-package utility.physics;
+package roboticarm.utility.physics;
 
 import org.dyn4j.collision.Fixture;
 import org.dyn4j.dynamics.Body;
@@ -15,7 +15,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 
 /**
- * @author Johan Talboom & Max Hager
+ * @author Johan Talboom
+ * @author Max Hager
  * @since 2017-03-08
  * @version 1.3
  */
@@ -31,8 +32,9 @@ public class DebugDraw {
             g2d.transform(bodyTransform);
 
             for (Fixture f : body.getFixtures()) {
-                g2d.draw(AffineTransform.getScaleInstance(scale,scale).createTransformedShape(getShape(f.getShape())));
+                g2d.draw(AffineTransform.getScaleInstance(scale, scale).createTransformedShape(getShape(f.getShape())));
             }
+
             g2d.setTransform(originalTransform);
         }
     }
@@ -40,8 +42,10 @@ public class DebugDraw {
     private static Shape getShape(Convex shape) {
         if (shape instanceof Polygon) return getShape((Polygon) shape);
         if (shape instanceof Circle) return getShape((Circle) shape);
-        else System.out.println("Unsupported shape: " + shape);
-        return null;
+        else {
+            System.out.println("Unsupported shape: " + shape);
+            return null;
+        }
     }
 
     private static Shape getShape(Polygon shape) {
@@ -58,8 +62,8 @@ public class DebugDraw {
     private static Shape getShape(Circle shape) {
         return new Ellipse2D.Double(shape.getCenter().x - shape.getRadius(),
                 shape.getCenter().y - shape.getRadius(),
-                shape.getRadius()*2,
-                shape.getRadius()*2);
+                shape.getRadius() * 2,
+                shape.getRadius() * 2);
     }
 
 }

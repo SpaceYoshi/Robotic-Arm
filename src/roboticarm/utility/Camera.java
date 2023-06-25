@@ -1,4 +1,4 @@
-package utility;
+package roboticarm.utility;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
@@ -31,7 +31,7 @@ public class Camera {
 		canvas.setOnMouseDragged(this::mouseDragged);
 		canvas.setOnScroll(this::mouseScroll);
 	}
-	
+
 	public AffineTransform getTransform(int windowWidth, int windowHeight)  {
 		AffineTransform tx = new AffineTransform();
 		tx.translate((double) windowWidth /2, (double) windowHeight /2);
