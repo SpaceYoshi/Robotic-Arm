@@ -36,9 +36,9 @@ public class RoboticArm extends Application {
     private Stage primaryStage;
     private Camera camera;
     private MousePicker mousePicker;
-    private World world;
-    private boolean debugSelected = false;
+    private final World world = new World();
     private final List<GameObject> gameObjects = new ArrayList<>();
+    private boolean debugSelected = false;
     private PrismaticJoint baseJoint;
     private RevoluteJoint baseLargeJoint;
     private RevoluteJoint largeMediumJoint;
@@ -101,8 +101,7 @@ public class RoboticArm extends Application {
 
     @Override
     public void init() {
-        // Set world
-        world = new World();
+        // Set world attribute
         world.setGravity(new Vector2(0, 9.81 * Y_AXIS_SCALE));
 
         // ### BODIES ###
