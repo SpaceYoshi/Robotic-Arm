@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="dyn4j-v3.3.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libraries/dyn4j-v3.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libraries/dyn4j-3.3.0.zip!/dyn4j-3.3.0/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libraries/dyn4j-3.3.0.zip!/dyn4j-3.3.0/src/test/java" />
+    </SOURCES>
+  </library>
+</component>

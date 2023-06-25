@@ -5,10 +5,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import org.jfree.fx.FXGraphics2D;
+import org.jfree.fx.Resizable;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-
 
 /**
  * Created by johan on 15-2-2017.
@@ -18,25 +18,23 @@ public class Camera {
 	private double zoom = 1;
 	private double rotation = 0;
 	private Point2D lastMousePos;
-	private Canvas canvas;
-	private Resizable resizable;
-	private FXGraphics2D g2d;
+	private final Canvas canvas;
+	private final Resizable resizable;
+	private final FXGraphics2D g2d;
 
 	public Camera(Canvas canvas, Resizable resizable, FXGraphics2D g2d) {
 		this.canvas = canvas;
 		this.resizable = resizable;
 		this.g2d = g2d;
 
-		canvas.setOnMousePressed(e -> {lastMousePos = new Point2D.Double(e.getX(), e.getY());});
-		canvas.setOnMouseDragged(e -> mouseDragged(e));
-		canvas.setOnScroll(e-> mouseScroll(e));
+		canvas.setOnMousePressed(e -> lastMousePos = new Point2D.Double(e.getX(), e.getY()));
+		canvas.setOnMouseDragged(this::mouseDragged);
+		canvas.setOnScroll(this::mouseScroll);
 	}
-
-
-
+	
 	public AffineTransform getTransform(int windowWidth, int windowHeight)  {
 		AffineTransform tx = new AffineTransform();
-		tx.translate(windowWidth/2, windowHeight/2);
+		tx.translate((double) windowWidth /2, (double) windowHeight /2);
 		tx.scale(zoom, zoom);
 		tx.translate(centerPoint.getX(), centerPoint.getY());
 		tx.rotate(rotation);
@@ -58,4 +56,5 @@ public class Camera {
 		zoom *= (1 + e.getDeltaY()/250.0f);
 		resizable.draw(g2d);
 	}
+
 }

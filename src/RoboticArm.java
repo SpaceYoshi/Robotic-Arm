@@ -5,57 +5,48 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
-import org.dyn4j.world.World;
 import org.jfree.fx.FXGraphics2D;
+import org.jfree.fx.ResizableCanvas;
 import utility.Camera;
 import utility.GameObject;
 import utility.MousePicker;
-import utility.ResizableCanvas;
 import utility.physics.DebugDraw;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RoboticArm extends Application {
     private ResizableCanvas canvas;
-    private double scale = 1;
-    private final World<Body> world = new World<>();
+    private final World world = new World();
     private Camera camera;
     private MousePicker mousePicker;
     private boolean debugSelected = false;
-    private List<GameObject> gameObjects = new ArrayList<>();
-
-    // Configuration
+    private final List<GameObject> gameObjects = new ArrayList<>();
     private static final double CANVAS_START_WIDTH = 1280;
     private static final double CANVAS_START_HEIGHT = 720;
     private static final byte Y_AXIS_SCALE = -1;
+    private double scale = 1;
 
     public static void main(String[] args) {
         launch(RoboticArm.class);
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         BorderPane mainPane = new BorderPane();
-        canvas = new ResizableCanvas(this::draw, mainPane, CANVAS_START_WIDTH, CANVAS_START_HEIGHT);
+        canvas = new ResizableCanvas(this::draw, mainPane);
 
         // Initialize variables
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         camera = new Camera(canvas, this::draw, g2d);
         mousePicker = new MousePicker(canvas);
 
-        // Set world attributes
-        world.setGravity(new Vector2(0, 9.81 * Y_AXIS_SCALE));
-
         // Create debug button
         CheckBox showDebug = new CheckBox("Debug Mode");
-        showDebug.setOnAction(e -> {
-            debugSelected = showDebug.isSelected();
-        });
+        showDebug.setOnAction(e -> debugSelected = showDebug.isSelected());
 
         // Set mainPane
         mainPane.setCenter(canvas);
@@ -74,10 +65,16 @@ public class RoboticArm extends Application {
         }.start();
 
         // Set stage
-        primaryStage.setScene(new Scene(mainPane));
+        primaryStage.setScene(new Scene(mainPane, CANVAS_START_WIDTH, CANVAS_START_HEIGHT));
         primaryStage.setTitle("Robotic Arm");
         primaryStage.getIcons().add(new Image("/textures/icon.png"));
         primaryStage.show();
+    }
+
+    @Override
+    public void init() {
+        // Set world attributes
+        world.setGravity(new Vector2(0, 9.81 * Y_AXIS_SCALE));
     }
 
     private void draw(FXGraphics2D g2d) {
@@ -88,13 +85,13 @@ public class RoboticArm extends Application {
 
         // Draw
         for (GameObject gameObject : gameObjects) gameObject.draw(g2d);
-        if (debugSelected) DebugDraw.draw(g2d, world, 100, Color.blue);
+        if (debugSelected) DebugDraw.draw(g2d, world, 100);
 
         g2d.setTransform(originalTransform);
     }
 
     private void update(double deltaTime) {
-        mousePicker.update(world, camera.getTransform((int) canvas.getWidth(), (int) canvas.getHeight()), 100);
+        mousePicker.update(world, camera.getTransform((int) canvas.getWidth(), (int) canvas.getHeight()), 100); // TODO add scale?
         scale = canvas.getHeight() / CANVAS_START_HEIGHT;
     }
 

@@ -2,11 +2,11 @@ package utility.physics;
 
 import org.dyn4j.collision.Fixture;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Circle;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.Polygon;
 import org.dyn4j.geometry.Vector2;
-import org.dyn4j.world.World;
 import org.jfree.fx.FXGraphics2D;
 
 import java.awt.*;
@@ -21,16 +21,16 @@ import java.awt.geom.GeneralPath;
  */
 public class DebugDraw {
 
-    public static void draw(FXGraphics2D g2d, World<Body> world, double scale, Color color) {
-        for (Body b : world.getBodies()) {
+    public static void draw(FXGraphics2D g2d, World world, double scale) {
+        for (Body body : world.getBodies()) {
             AffineTransform originalTransform = g2d.getTransform();
 
             AffineTransform bodyTransform = new AffineTransform();
-            bodyTransform.translate(b.getTransform().getTranslationX() * scale, b.getTransform().getTranslationY() * scale);
-            bodyTransform.rotate(b.getTransform().getRotationAngle());
+            bodyTransform.translate(body.getTransform().getTranslationX() * scale, body.getTransform().getTranslationY() * scale);
+            bodyTransform.rotate(body.getTransform().getRotation());
             g2d.transform(bodyTransform);
 
-            for (Fixture f : b.getFixtures()) {
+            for (Fixture f : body.getFixtures()) {
                 g2d.draw(AffineTransform.getScaleInstance(scale,scale).createTransformedShape(getShape(f.getShape())));
             }
             g2d.setTransform(originalTransform);

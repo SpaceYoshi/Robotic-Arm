@@ -4,9 +4,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.DetectResult;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.dynamics.joint.MotorJoint;
@@ -14,8 +12,6 @@ import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Transform;
-import org.dyn4j.world.World;
-import org.dyn4j.world.result.DetectResult;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -27,9 +23,7 @@ import java.util.List;
  * Created by johan on 2017-03-08.
  */
 public class MousePicker {
-
     private Point2D mousePos = null;
-
     private Body body;
     private MotorJoint joint;
 
@@ -63,7 +57,7 @@ public class MousePicker {
 
     }
 
-    public void update(World<Body> world, AffineTransform transform, double scale) {
+    public void update(World world, AffineTransform transform, double scale) {
         if (mousePos == null) {
             if (body != null) {
                 world.removeBody(body);
@@ -84,9 +78,16 @@ public class MousePicker {
                 tx.translate(localMouse.getX(), localMouse.getY());
 
                 // detect bodies under the mouse pointer
-                List<DetectResult<Body, BodyFixture>> results = new ArrayList<>();
+                List<DetectResult> results = new ArrayList<>();
 
-                boolean detect = world.detect(convex, tx, null, null);
+                boolean detect = world.detect(
+                        convex,
+                        tx,
+                        null, // no, don't filter anything using the Filters
+                        false, // include sensor fixtures
+                        false, // include inactive bodies
+                        false, // we don't need collision info
+                        results);
 
                 if (detect) {
                     Body target = results.get(0).getBody();

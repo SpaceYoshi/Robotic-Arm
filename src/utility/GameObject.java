@@ -32,9 +32,7 @@ public class GameObject {
     }
 
     public void draw(FXGraphics2D g2d) {
-        if (image == null) {
-            return;
-        }
+        if (image == null) return;
 
         AffineTransform tx = new AffineTransform();
         tx.translate(body.getTransform().getTranslationX() * 100, body.getTransform().getTranslationY() * 100);
@@ -42,8 +40,8 @@ public class GameObject {
         tx.scale(scale, -scale);
         tx.translate(offset.x, offset.y);
 
-        tx.translate(-image.getWidth() / 2, -image.getHeight() / 2);
+        tx.translate((double) -image.getWidth() / 2, (double) -image.getHeight() / 2);
         g2d.drawImage(image, tx, null);
-
     }
+
 }

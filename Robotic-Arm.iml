@@ -8,8 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="dyn4j-5.0.1" level="project" />
-    <orderEntry type="library" name="org.jfree.fxgraphics2d-2.1.4" level="project" />
-    <orderEntry type="library" name="JavaFX" level="project" />
+    <orderEntry type="library" name="fxgraphics2d-1.10" level="project" />
+    <orderEntry type="library" name="dyn4j-v3.3.0" level="project" />
   </component>
 </module>
