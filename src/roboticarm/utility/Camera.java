@@ -11,7 +11,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 /**
- * Created by johan on 15-2-2017.
+ * @author Johan Talboom
+ * @since 2017-2-15
  */
 public class Camera {
 	private Point2D centerPoint = new Point2D.Double(0,0);
@@ -42,7 +43,7 @@ public class Camera {
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		if(e.getButton() == MouseButton.MIDDLE) {
+		if (e.getButton() == MouseButton.MIDDLE) {
 			centerPoint = new Point2D.Double(
 					centerPoint.getX() - (lastMousePos.getX() - e.getX()) / zoom,
 					centerPoint.getY() - (lastMousePos.getY() - e.getY()) / zoom

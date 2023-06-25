@@ -4,23 +4,27 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.dynamics.joint.PrismaticJoint;
 import org.dyn4j.dynamics.joint.RevoluteJoint;
+import org.dyn4j.dynamics.joint.WeldJoint;
 import org.dyn4j.geometry.Geometry;
+import org.dyn4j.geometry.Mass;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
 import roboticarm.utility.Camera;
+import roboticarm.utility.DebugDraw;
 import roboticarm.utility.GameObject;
 import roboticarm.utility.MousePicker;
-import roboticarm.utility.physics.DebugDraw;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -30,9 +34,9 @@ import java.util.List;
 public class RoboticArm extends Application {
     private ResizableCanvas canvas;
     private Stage primaryStage;
-    private final World world = new World();
     private Camera camera;
     private MousePicker mousePicker;
+    private World world;
     private boolean debugSelected = false;
     private final List<GameObject> gameObjects = new ArrayList<>();
     private PrismaticJoint baseJoint;
@@ -40,12 +44,10 @@ public class RoboticArm extends Application {
     private RevoluteJoint largeMediumJoint;
     private RevoluteJoint mediumSmallJoint;
     private RevoluteJoint smallHeadJoint;
+    public static final double Y_AXIS_SCALE = -1;
+    private static final double DEBUG_SCALE = 100;
     private static final double BASE_MOVEMENT_SPEED = 5;
     private static final double ROTATION_SPEED = 2;
-    private static final double CANVAS_START_WIDTH = 1920;
-    private static final double CANVAS_START_HEIGHT = 1000;
-    public static final double Y_AXIS_SCALE = -1;
-//    private double scale = 1; // TODO add scaling?
 
     public static void main(String[] args) {
         launch(RoboticArm.class);
@@ -66,9 +68,12 @@ public class RoboticArm extends Application {
         CheckBox showDebug = new CheckBox("Debug Mode");
         showDebug.setOnAction(e -> debugSelected = showDebug.isSelected());
 
+        Label label = new Label("Key combinations: Base movement = A-D/Arrows, Large rotation = N-M, Medium rotation = H-J, Small rotation = Y-U and Head rotation = 6-7. Scroll to zoom and use the middle mouse button to move around.");
+        HBox topBox = new HBox(15, showDebug, label);
+
         // Set mainPane
         mainPane.setCenter(canvas);
-        mainPane.setTop(showDebug);
+        mainPane.setTop(topBox);
 
         // Set events
         canvas.setFocusTraversable(true);
@@ -88,7 +93,7 @@ public class RoboticArm extends Application {
         }.start();
 
         // Set stage
-        primaryStage.setScene(new Scene(mainPane, CANVAS_START_WIDTH, CANVAS_START_HEIGHT));
+        primaryStage.setScene(new Scene(mainPane, 1920, 1000));
         primaryStage.setTitle("Robotic Arm");
         primaryStage.getIcons().add(new Image("/textures/icon.png"));
         primaryStage.show();
@@ -96,7 +101,8 @@ public class RoboticArm extends Application {
 
     @Override
     public void init() {
-        // Set world attributes
+        // Set world
+        world = new World();
         world.setGravity(new Vector2(0, 9.81 * Y_AXIS_SCALE));
 
         // ### BODIES ###
@@ -113,7 +119,8 @@ public class RoboticArm extends Application {
         Body upperBase = new Body();
         upperBase.addFixture(Geometry.createRectangle(1.35, 0.55));
         upperBase.getTransform().setTranslationY(-4.5);
-        upperBase.setMass(MassType.NORMAL);
+        upperBase.setMassType(MassType.NORMAL);
+        upperBase.setMass(new Mass(upperBase.getWorldCenter(), 100, 0));
         world.addBody(upperBase);
         gameObjects.add(new GameObject("base-upper.png", upperBase, new Vector2(0, 26), 1));
 
@@ -149,9 +156,14 @@ public class RoboticArm extends Application {
         world.addBody(headSegment);
         gameObjects.add(new GameObject(("segment-head.png"), headSegment, new Vector2(0, 53), 1));
 
-        // ### JOINTS ###
+        // Create head extension
+        Body headExtension = new Body();
+        headExtension.addFixture(Geometry.createRectangle(0.35, 0.84));
+        headExtension.getTransform().setTranslationY(6.14);
+        headExtension.setMass(MassType.NORMAL);
+        world.addBody(headExtension);
 
-        final double maxForceTorque = 100;
+        // ### JOINTS ###
 
         // Join lower and upper base
         baseJoint = new PrismaticJoint(lowerBase, upperBase, upperBase.getWorldCenter(), new Vector2(1, 0));
@@ -161,7 +173,7 @@ public class RoboticArm extends Application {
         baseJoint.setLowerLimit(-movementLimit);
         baseJoint.setMotorEnabled(true);
         baseJoint.setMotorSpeed(0);
-        baseJoint.setMaximumMotorForce(maxForceTorque);
+        baseJoint.setMaximumMotorForce(1000);
         world.addJoint(baseJoint);
 
         // Join upper base and large segment
@@ -172,7 +184,7 @@ public class RoboticArm extends Application {
         baseLargeJoint.setLowerLimit(-rotationLimitLargeSegment);
         baseLargeJoint.setMotorEnabled(true);
         baseLargeJoint.setMotorSpeed(0);
-        baseLargeJoint.setMaximumMotorTorque(maxForceTorque);
+        baseLargeJoint.setMaximumMotorTorque(200);
         world.addJoint(baseLargeJoint);
 
         // Join large and medium segments
@@ -183,7 +195,7 @@ public class RoboticArm extends Application {
         largeMediumJoint.setLowerLimit(-rotationLimitMediumSegment);
         largeMediumJoint.setMotorEnabled(true);
         largeMediumJoint.setMotorSpeed(0);
-        largeMediumJoint.setMaximumMotorTorque(maxForceTorque);
+        largeMediumJoint.setMaximumMotorTorque(100);
         world.addJoint(largeMediumJoint);
 
         // Join medium and small segments
@@ -194,7 +206,7 @@ public class RoboticArm extends Application {
         mediumSmallJoint.setLowerLimit(-rotationLimitSmallSegment);
         mediumSmallJoint.setMotorEnabled(true);
         mediumSmallJoint.setMotorSpeed(0);
-        mediumSmallJoint.setMaximumMotorTorque(maxForceTorque);
+        mediumSmallJoint.setMaximumMotorTorque(30);
         world.addJoint(mediumSmallJoint);
 
         // Join small and head segments
@@ -205,8 +217,12 @@ public class RoboticArm extends Application {
         smallHeadJoint.setLowerLimit(-rotationLimitHeadSegment);
         smallHeadJoint.setMotorEnabled(true);
         smallHeadJoint.setMotorSpeed(0);
-        smallHeadJoint.setMaximumMotorTorque(maxForceTorque);
+        smallHeadJoint.setMaximumMotorTorque(25);
         world.addJoint(smallHeadJoint);
+
+        // Join head segment and extension
+        WeldJoint headExtensionJoint = new WeldJoint(headSegment, headExtension, headSegment.getWorldCenter());
+        world.addJoint(headExtensionJoint);
     }
 
     private void draw(FXGraphics2D g2d) {
@@ -220,19 +236,17 @@ public class RoboticArm extends Application {
 
         // Draw
         for (GameObject gameObject : gameObjects) gameObject.draw(g2d);
-        if (true) { // TODO
+        if (debugSelected) {
             g2d.setColor(Color.BLUE);
-            DebugDraw.draw(g2d, world, 100);
+            DebugDraw.draw(g2d, world, DEBUG_SCALE);
         }
 
         g2d.setTransform(originalTransform);
     }
 
     private void update(double deltaTime) {
-        mousePicker.update(world, camera.getTransform((int) canvas.getWidth(), (int) canvas.getHeight()), 100); // TODO current scale does not change anything?
-        world.update(deltaTime); // TODO WARNING
-//        scale = canvas.getHeight() / CANVAS_START_HEIGHT; // TODO add scaling?
-
+        world.update(deltaTime);
+        mousePicker.update(world, camera.getTransform((int) canvas.getWidth(), (int) canvas.getHeight()), DEBUG_SCALE);
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {

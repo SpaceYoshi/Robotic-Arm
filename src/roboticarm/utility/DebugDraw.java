@@ -1,4 +1,4 @@
-package roboticarm.utility.physics;
+package roboticarm.utility;
 
 import org.dyn4j.collision.Fixture;
 import org.dyn4j.dynamics.Body;
@@ -18,7 +18,7 @@ import java.awt.geom.GeneralPath;
  * @author Johan Talboom
  * @author Max Hager
  * @since 2017-03-08
- * @version 1.3
+ * @version 1.1
  */
 public class DebugDraw {
 
